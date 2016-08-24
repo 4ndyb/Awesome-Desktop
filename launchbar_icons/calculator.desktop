@@ -1,0 +1,5 @@
+[Desktop Entry]
+ Name=Calculator
+ Exec=gnome-calculator
+ Icon=/usr/share/icons/gnome/24x24/apps/calc.png
+ Position=1

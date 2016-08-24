@@ -11,6 +11,9 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local menubar = require("menubar")
 
+-- Vicious
+vicious = require("vicious")
+
 -- Load Debian menu entries
 require("debian.menu")
 --require("volume")
@@ -43,15 +46,12 @@ end
 
 -- add desktop launch lua file
 local launchbar = require('launchbar')
-local mylaunchbar = launchbar("~/Awesome/")
+local mylaunchbar = launchbar("~/.config/awesome/launchbar_icons/")
 --- end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
---beautiful.init("/usr/share/awesome/themes/default/theme.lua")
---beautiful.init("~/.config/awesome/themes/zenburn-custom/theme.lua")
---beautiful.init("~/.config/awesome/themes/wmii/theme.lua")
-beautiful.init("~/.config/awesome/themes/roig/theme.lua")
+beautiful.init("~/.config/awesome/themes/custom1/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
@@ -70,14 +70,14 @@ modkey = "Mod4"
 local layouts =
 {
     awful.layout.suit.floating,
-    awful.layout.suit.tile,
-    --awful.layout.suit.tile.left,
+    --awful.layout.suit.tile,
+    awful.layout.suit.tile.left,
     --awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.top,
-    --awful.layout.suit.fair,
+    awful.layout.suit.fair,
     --awful.layout.suit.fair.horizontal,
     --awful.layout.suit.spiral,
-    --awful.layout.suit.spiral.dwindle,
+    awful.layout.suit.spiral.dwindle,
     --awful.layout.suit.max,
     --awful.layout.suit.max.fullscreen,
     --awful.layout.suit.magnifier
@@ -123,6 +123,69 @@ mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
+
+-- Spacer
+spacer       = wibox.widget.textbox()
+spacer:set_text(' | ')
+
+-- {{{ CPU
+-- CPU icon
+cpuicon = wibox.widget.imagebox()
+cpuicon:set_image(beautiful.widget_cpu)
+
+-- Initialize cpu widget
+cpuwidget = awful.widget.graph()
+-- Graph properties
+cpuwidget:set_width(50)
+cpuwidget:set_background_color("#494B4F")
+cpuwidget:set_color({ type = "linear", from = { 0, 0 }, to = { 10,0 }, stops = { {0, "#FF5656"}, {0.5, "#88A175"}, {1, "#AECF96" }}})
+-- Register widget
+vicious.register(cpuwidget, vicious.widgets.cpu, "$1")
+-- }}}
+
+-- {{{ Memory
+-- memory icon
+memicon = wibox.widget.imagebox()
+memicon:set_image(beautiful.widget_mem)
+
+-- Initialize widget
+memwidget = awful.widget.progressbar()
+-- Progressbar properties
+memwidget:set_width(10)
+memwidget:set_height(20)
+memwidget:set_vertical(true)
+memwidget:set_background_color("#494B4F")
+memwidget:set_color('#AECF96')
+memwidget:set_border_color(nil)
+-- memwidget:set_color({ type = "linear", from = { 0, 0 }, to = { 0,10 }, stops = { {0, "#AECF96"}, {0.5, "#88A175"}, {1, "#FF5656"}}})
+memwidget:set_color({type="linear", from = {0.5, 0.5}, to = {100, 20}, stops = { {0, "#AECF96"}, {1, "#88A175"}, {2, "#FF5656"} } })
+-- RAM usage tooltip
+memwidget_t = awful.tooltip({ objects = { memwidget.widget },})
+vicious.cache(vicious.widgets.mem)
+-- Register widget
+vicious.register(memwidget, vicious.widgets.mem, "$1",13)
+-- }}}
+
+-- {{{ Net
+neticon = wibox.widget.imagebox()
+neticon:set_image(beautiful.widget_netdown)
+neticonup = wibox.widget.imagebox()
+neticonup:set_image(beautiful.widget_netup)
+netwidget = wibox.widget.textbox()
+-- Register widget
+vicious.register(netwidget, vicious.widgets.net, '<span color="#CC9393">${eth0 up_kb}</span> <span color="#7F9F7F">${eth0 down_kb}</span>', 3)
+-- }}}
+
+-- {{{ Disk
+diskicon = wibox.widget.imagebox()
+diskicon:set_image(beautiful.widget_disk)
+diskwidget = wibox.widget.textbox()
+-- Register widget
+vicious.register(diskwidget, vicious.widgets.dio, '<span color="#DCDCCC">r:${sda read_mb}</span>/<span color="#DCDCCC">w:${sda write_mb}</span>', 3)
+-- }}}
+
+
+
 
 -- {{{ Wibox
 -- Create a textclock widget
@@ -201,14 +264,32 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
     left_layout:add(mylauncher)
+    left_layout:add(spacer)
     left_layout:add(mylaunchbar)
+    left_layout:add(spacer)
     left_layout:add(mytaglist[s])
+    left_layout:add(spacer)
     left_layout:add(mypromptbox[s])
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
+    right_layout:add(spacer)
+    right_layout:add(cpuicon)
+    right_layout:add(cpuwidget)
+    right_layout:add(spacer)
+    right_layout:add(memicon)
+    right_layout:add(memwidget)
+    right_layout:add(spacer)
+    right_layout:add(neticonup)
+    right_layout:add(netwidget)
+    right_layout:add(neticon)
+    right_layout:add(spacer)
+    right_layout:add(diskicon)
+    right_layout:add(diskwidget)
+    right_layout:add(spacer)
+
     if s == 1 then right_layout:add(wibox.widget.systray()) end
-    --right_layout:add(volume_widget)
+    right_layout:add(spacer)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
 
@@ -262,6 +343,7 @@ globalkeys = awful.util.table.join(
             end
         end),
 
+
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
@@ -296,7 +378,8 @@ globalkeys = awful.util.table.join(
     awful.key({ }, "XF86MonBrightnessUp", function ()
     awful.util.spawn("xbacklight -inc 5") end),
     -- Screensaver
-    awful.key({ modkey }, "F12", function () awful.util.spawn("cinnamon-screensaver-command -l") end)
+    awful.key({ modkey }, "F12", function () awful.util.spawn("cinnamon-screensaver-command -l") end),
+    awful.key({ modkey }, "l", function () awful.util.spawn("cinnamon-screensaver-command -l") end)
 )
 
 clientkeys = awful.util.table.join(
@@ -316,7 +399,12 @@ clientkeys = awful.util.table.join(
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
             c.maximized_vertical   = not c.maximized_vertical
-        end)
+        end),
+    -- resize stuff
+    awful.key({ modkey }, "v", function (c)
+                    c.maximized_vertical   = not c.maximized_vertical
+                        end)
+
 )
 
 -- Bind all key numbers to tags.
@@ -469,12 +557,16 @@ client.connect_signal("manage", function (c, startup)
 end)
 
 awful.util.spawn_with_shell("xscreensaver")
--- awful.util.spawn_with_shell("pidgin")
--- awful.util.spawn_with_shell("skype")
+awful.util.spawn_with_shell("pidgin")
+awful.util.spawn_with_shell("skype")
 awful.util.spawn_with_shell("parcellite")
 awful.util.spawn_with_shell("guake")
-awful.util.spawn_with_shell("/home/andy/.dropbox-dist/dropboxd")
-awful.util.spawn("nm-applet")
+awful.util.spawn_with_shell("~/.dropbox-dist/dropboxd")
+awful.util.spawn_with_shell("nm-applet")
+awful.util.spawn_with_shell("xfce4-power-manager")
+awful.util.spawn_with_shell("pasystray")
+awful.util.spawn_with_shell("shutter --min_at_startup")
+
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)

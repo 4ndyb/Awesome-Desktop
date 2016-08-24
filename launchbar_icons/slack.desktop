@@ -1,0 +1,5 @@
+[Desktop Entry]
+ Name=Slack
+ Exec=slack
+ Icon=/usr/share/pixmaps/slack.png
+ Position=1

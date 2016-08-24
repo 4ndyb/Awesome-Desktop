@@ -1,0 +1,5 @@
+[Desktop Entry]
+ Name=Chrome
+ Exec=google-chrome
+ Icon=/usr/share/icons/hicolor/22x22/apps/google-chrome.png
+ Position=1

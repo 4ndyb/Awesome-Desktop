@@ -1,0 +1,5 @@
+[Desktop Entry]
+ Name=Terminator
+ Exec=terminator
+ Icon=/usr/share/icons/hicolor/24x24/apps/terminator.png
+ Position=1

@@ -1,0 +1,5 @@
+[Desktop Entry]
+ Name=Nemo
+ Exec=nemo
+ Icon=/usr/share/icons/hicolor/24x24/apps/nemo.png
+ Position=1
